@@ -1,0 +1,52 @@
+.Upload {
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+  width: 100%;
+  padding-bottom: 70px;
+}
+
+.Upload #upload {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.Upload #or {
+  position: relative;
+  top: calc(70px + 0.5em);
+  /*background-color: white;*/
+  background: linear-gradient(90deg, transparent 0, white 20%, white 80%, transparent);
+  width: 3em;
+  /*font-weight: bold;*/
+  /*height: ;*/
+  margin: 0 auto;
+  color: rgba(0, 0, 0, 0.8);
+  user-select: none;
+}
+
+.Upload label {
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  border: 2px dashed #02C3BD;
+  padding: 50px 0;
+  width: 400px;
+  margin-bottom: 15px;
+}
+
+.Upload label:hover {
+  /*background-color: rgba(0, 0, 0, 0.1);*/
+  background: repeating-linear-gradient(
+      -45deg,
+      white,
+      white 10px,
+      rgba(0, 0, 0, 0.05) 10px,
+      rgba(0, 0, 0, 0.05) 20px
+  );
+}
+
+.Upload form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

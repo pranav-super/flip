@@ -1,0 +1,21 @@
+* {
+  outline: none;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-header {
+  min-height: 20vh;
+  font-size: calc(50px + 2vmin);
+  /*font-style: italic;*/
+  letter-spacing: 0;
+  color: #02C3BD;
+  user-select: none;
+  font-family: 'Raleway', sans-serif;
+}
