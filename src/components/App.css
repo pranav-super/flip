@@ -11,10 +11,9 @@
 }
 
 .App-header {
-  min-height: 20vh;
-  font-size: calc(50px + 2vmin);
-  /*font-style: italic;*/
-  letter-spacing: 0;
+  font-size: 4em;
+  top: 0;
+  position: absolute;
   color: #02C3BD;
   user-select: none;
   font-family: 'Raleway', sans-serif;

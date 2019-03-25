@@ -1,7 +1,10 @@
 .Upload {
+  position: relative;
   border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding-bottom: 70px;
+  height: calc(55vh - 10em);
+  min-height: 15em;
+  top: 10em;
 }
 
 .Upload #upload {
@@ -11,16 +14,19 @@
 }
 
 .Upload #or {
-  position: relative;
-  top: calc(70px + 0.5em);
-  /*background-color: white;*/
-  background: linear-gradient(90deg, transparent 0, white 20%, white 80%, transparent);
-  width: 3em;
-  /*font-weight: bold;*/
-  /*height: ;*/
+  position: absolute;
+  text-align: center;
+  bottom: -0.5em;
+  width: 100%;
   margin: 0 auto;
   color: rgba(0, 0, 0, 0.8);
   user-select: none;
+}
+
+.Upload #or span {
+  display: inline-block;
+  background-color: white;
+  width: 3em;
 }
 
 .Upload label {
@@ -34,7 +40,6 @@
 }
 
 .Upload label:hover {
-  /*background-color: rgba(0, 0, 0, 0.1);*/
   background: repeating-linear-gradient(
       -45deg,
       white,
@@ -49,4 +54,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.Upload .key {
+
 }
