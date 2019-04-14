@@ -29,26 +29,6 @@
   width: 3em;
 }
 
-.Upload label {
-  font-style: italic;
-  color: rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  border: 2px dashed #02C3BD;
-  padding: 50px 0;
-  width: 400px;
-  margin-bottom: 15px;
-}
-
-.Upload label:hover {
-  background: repeating-linear-gradient(
-      -45deg,
-      white,
-      white 10px,
-      rgba(0, 0, 0, 0.05) 10px,
-      rgba(0, 0, 0, 0.05) 20px
-  );
-}
-
 .Upload form {
   display: flex;
   flex-direction: column;

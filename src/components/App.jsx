@@ -5,7 +5,7 @@ import Retrieve from './Retrieve'
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" onDragOver={e => e.preventDefault()}>
       <header className="App-header">
         flip
       </header>
