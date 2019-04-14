@@ -7,9 +7,7 @@ function Retrieve() {
 
   return (
     <div className="Retrieve">
-      <input maxLength="5" type="text" placeholder="00000" onChange={ e => {
-        setToken(e.target.value);
-      } }/>
+      <input maxLength="5" type="text" placeholder="00000" onChange={ e => setToken(e.target.value) }/>
       <Button label={ Retrieve.name } onClick={ e => {
         console.log(token);
       }

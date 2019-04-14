@@ -8,9 +8,12 @@ const zone = {
   color: 'rgba(0, 0, 0, 0.5)',
   cursor: 'pointer',
   border: '2px dashed #02C3BD',
-  padding: '50px 0',
+  padding: '30px 0',
+  height: '20px',
   width: '400px',
   marginBottom: '15px',
+  overflow: 'scroll',
+  lineHeight: '1.3',
 };
 
 const zoneActive = {
@@ -22,7 +25,7 @@ function Upload({ uploadInput }) {
   const [ uploaded, setUploaded ] = useState('select/drag files');
   const [ hover, setHover ] = useState(false);
   const onDrop = useCallback(acceptedFiles => {
-    console.log(acceptedFiles);
+    setUploaded(acceptedFiles.map(f => f.name).join(', '))
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const style = useMemo(() => ({
@@ -57,9 +60,8 @@ function Upload({ uploadInput }) {
           style,
           onMouseEnter: () => setHover(true),
           onMouseLeave: () => setHover(false),
-        }
-          ) }>
-          <span { ...getInputProps() }>{ uploaded }</span>
+        }) }>
+          <span >{ uploaded }</span>
         </label>
         <input id="upload"
                ref={
