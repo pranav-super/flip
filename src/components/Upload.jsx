@@ -27,7 +27,7 @@ function Upload({ uploadInput }) {
   const onDrop = useCallback(acceptedFiles => {
     setUploaded(acceptedFiles.map(f => f.name).join(', '))
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, isDragActive } = useDropzone({ onDrop });
   const style = useMemo(() => ({
     ...zone,
     ...(isDragActive || hover ? zoneActive : {}),
@@ -61,7 +61,7 @@ function Upload({ uploadInput }) {
           onMouseEnter: () => setHover(true),
           onMouseLeave: () => setHover(false),
         }) }>
-          <span >{ uploaded }</span>
+          <span>{ uploaded }</span>
         </label>
         <input id="upload"
                ref={
@@ -72,7 +72,7 @@ function Upload({ uploadInput }) {
                type="file"
                multiple
         />
-        <Button label={ Upload.name }/>
+        <Button loading={ false } label={ Upload.name }/>
         <span className="key">{ key }</span>
       </form>
       <div id="or"><span>OR</span></div>

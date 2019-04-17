@@ -1,17 +1,23 @@
 import React from 'react';
-import './App.css';
-import Upload from './Upload'
-import Retrieve from './Retrieve'
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import { BrowserRouter, Route } from 'react-router-dom';
+import Home from './Home';
+import Download from './Download';
+import thunk from 'redux-thunk';
+
+import rt from '../reducers';
+
+const store = createStore(rt, applyMiddleware(thunk));
 
 function App() {
   return (
-    <div className="App" onDragOver={e => e.preventDefault()}>
-      <header className="App-header">
-        flip
-      </header>
-      <Upload/>
-      <Retrieve/>
-    </div>
+    <BrowserRouter>
+      <Provider store={ store }>
+        <Route exact path={ "/" } component={ Home }/>
+        <Route exact path={ "/:token" } component={ Download }/>
+      </Provider>
+    </BrowserRouter>
   );
 }
 

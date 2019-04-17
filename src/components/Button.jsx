@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MoonLoader } from 'react-spinners';
 import './Button.css';
 
-function Button({ label, onClick }) {
-  const [ loading, setLoading ] = useState(false);
-
-  // Temp onClick
+function Button({ loading, label, onClick }) {
   return (
     <button className={ loading ? "Load" : "Button" } onClick={ onClick }>
       {
