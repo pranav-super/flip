@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"math"
 	"math/rand"
+	"path"
 )
 
 var (
@@ -15,7 +16,8 @@ var (
 
 // TODO: Figure out empty name
 func ProcessData(data io.Reader, name string, dst Key) error {
-	s3.putData(dst, data)
+	newKey := &AWSKey{"s3.flip.io", path.Join(dst.Id(), name)}
+	s3.putData(newKey, data)
 
 	//file, err := os.Create(dst)
 	//if err != nil {

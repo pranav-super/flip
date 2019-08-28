@@ -8,6 +8,10 @@ import (
 	"io"
 )
 
+const (
+	region = "us-east-1" // TODO: Naming convention?
+)
+
 type DataStore interface {
 	getData() bool
 	putData(key Key, reader io.Reader) bool
@@ -19,7 +23,9 @@ type S3 struct {
 }
 
 func S3Session() *S3 {
-	sess := session2.Must(session2.NewSession())
+	sess := session2.Must(session2.NewSession(&aws.Config{
+		Region: aws.String(region),
+	}))
 	return &S3{
 		uploader:   s3manager.NewUploader(sess),
 		downloader: s3manager.NewDownloader(sess),
