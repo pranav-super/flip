@@ -9,10 +9,10 @@ type Key interface {
 }
 
 type AWSKey struct {
-	s3Bucket string
-	s3Key    string
+	S3Bucket string
+	S3Key    string
 }
 
 func (a *AWSKey) Id() string {
-	return a.s3Key
+	return a.S3Key
 }
