@@ -49,7 +49,8 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 }
 
 func getFile(env *config.Env, c echo.Context) (error, int) {
-	//key := c.Param("key") // TODO: Verify key
+	key := c.Param("key") // TODO: Verify key
+    buf := core.GetData(&core.AWSKey{"s3.flip.io", key})
 
 	// TODO: Query S3
 	//reg, err := ioutil.ReadDir(path.Join(env.DataPath, i))
@@ -68,10 +69,8 @@ func getFile(env *config.Env, c echo.Context) (error, int) {
 
 	// TODO: Bufferless proxy?
 
-	//c.Response().Header().Add("Content-Disposition", "attachment; filename=\""+fileName+"\"")
-	//if err := c.File(path.Join(env.DataPath, i, fileName)); err != nil {
-	//	return err, http.StatusInternalServerError
-	//}
+	c.Response().Header().Add("Content-Disposition", "attachment; filename=\""+key+"\"")
+    c.Response().Write(buf)
 	return nil, 0
 }
 

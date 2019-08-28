@@ -34,6 +34,11 @@ func ProcessData(data io.Reader, name string, dst Key) error {
 	return nil
 }
 
+func GetData(key Key) []byte {
+	data, _ := s3.getData(key)
+	return data
+}
+
 func register(env *config.Env) (Key, error) {
 	seed := time.Now().UnixNano()
 	source := rand.NewSource(seed)

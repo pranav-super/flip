@@ -18,6 +18,7 @@ type DataStore interface {
 }
 
 type S3 struct {
+	client     *s4.S3
 	uploader   *s3manager.Uploader
 	downloader *s3manager.Downloader
 }
@@ -27,6 +28,7 @@ func S3Session() *S3 {
 		Region: aws.String(region),
 	}))
 	return &S3{
+		client:     s4.New(sess),
 		uploader:   s3manager.NewUploader(sess),
 		downloader: s3manager.NewDownloader(sess),
 	}
@@ -34,10 +36,18 @@ func S3Session() *S3 {
 
 // TODO: Improve memory efficiency; stream to given io (e.g. echo Body) instead of into memory
 func (s S3) getData(key Key) ([]byte, bool) {
+	objects, err := s.client.ListObjects(&s4.ListObjectsInput{
+		Prefix: aws.String(key.Id()),
+	})
+	if err != nil {
+		return nil, false
+	}
+	fullKey := objects.Contents[0].Key
+
 	buf := aws.NewWriteAtBuffer([]byte{})
 	n, err := s.downloader.Download(buf, &s4.GetObjectInput{
 		Bucket: aws.String("s3.flip.io"),
-		Key:    aws.String(key.Id()),
+		Key:    fullKey,
 	})
 	if err != nil || n < 0 {
 		return nil, false
