@@ -12,6 +12,10 @@ type KeyOptions struct {
 	TTL int
 }
 
+func Objects(store DataStore, key Key) []string {
+	return store.objects(key)
+}
+
 // TODO: Figure out empty name
 func PutData(store DataStore, data io.Reader, name string, dst Key) error {
 	store.putData(dst.Extend(name), data) // TODO: Impl./return error

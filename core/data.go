@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	s3service "github.com/aws/aws-sdk-go/service/s3"
 	"io"
+	"strings"
 )
 
 const (
@@ -13,8 +14,9 @@ const (
 )
 
 type DataStore interface {
-	getData(Key) ([]byte, bool)
-	putData(Key, io.Reader) bool
+	objects(key Key) []string
+	getData(key Key) ([]byte, bool)
+	putData(key Key, r io.Reader) bool
 }
 
 type S3 struct {
@@ -34,21 +36,34 @@ func S3Session() *S3 {
 	}
 }
 
-// TODO: Improve memory efficiency; stream to given io (e.g. echo Body) instead of into memory
-func (s *S3) getData(key Key) ([]byte, bool) {
+func keySuffix(s string) string {
+	subkeys := strings.Split(s, "/")
+	return subkeys[len(subkeys)-1]
+}
+
+func (s *S3) objects(key Key) []string {
 	objects, err := s.client.ListObjects(&s3service.ListObjectsInput{
 		Bucket: aws.String(key.Metadata().(string)),
 		Prefix: aws.String(key.Token()),
 	})
 	if err != nil {
-		return nil, false
+		return nil // TODO: Return err
 	}
-	fullKey := objects.Contents[0].Key
 
+	names := make([]string, len(objects.Contents))
+	for _, obj := range objects.Contents {
+		names = append(names, keySuffix(*obj.Key))
+	}
+
+	return names
+}
+
+// TODO: Improve memory efficiency; stream to given io (e.g. echo Body) instead of into memory
+func (s *S3) getData(key Key) ([]byte, bool) {
 	buf := aws.NewWriteAtBuffer([]byte{})
 	n, err := s.downloader.Download(buf, &s3service.GetObjectInput{
 		Bucket: aws.String(key.Metadata().(string)), // Type assertion - poor performance
-		Key:    fullKey,
+		Key:    aws.String(key.Token()),
 	})
 	if err != nil || n < 0 {
 		return nil, false

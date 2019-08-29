@@ -42,6 +42,7 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 	}
 }
 
+// TODO: Bufferless proxy?
 func getFile(env *config.Env, c echo.Context) (error, int) {
 	key := c.Param("key")                                                // TODO: Check input
 	buf := core.GetData(env.DataStore, core.NewS3Key("s3.flip.io", key)) // TODO: Some way to fetch key struct (S3 tags/Dynamo?)
@@ -55,8 +56,6 @@ func getFile(env *config.Env, c echo.Context) (error, int) {
 	//	return nil, http.StatusNotFound
 	//}
 
-	// TODO: Bufferless proxy?
-
 	c.Response().Header().Add("Content-Disposition", "attachment; filename=\""+key+"\"")
 	c.Response().Write(buf) // TODO: Error check
 	return nil, 0
@@ -64,25 +63,12 @@ func getFile(env *config.Env, c echo.Context) (error, int) {
 
 // Respond to client with information about given key
 func info(env *config.Env, c echo.Context) (error, int) {
-	//id := c.Param("key")
-	//i, err := env.DB.Get(id).Result()
-	//if err != nil || len(i) != uuidLength {
-	//	return err, http.StatusNotFound
-	//}
-	//
-	//reg, err := ioutil.ReadDir(path.Join(env.DataPath, i))
-	//if err != nil {
-	//	return err, http.StatusInternalServerError
-	//}
-	//
-	//inf := make([]string, len(reg))
-	//for i, e := range reg {
-	//	inf[i] = e.Name()
-	//}
-	//
-	//if err := c.JSON(http.StatusOK, inf); err != nil {
-	//	return err, http.StatusInternalServerError
-	//}
+	id := c.Param("key")
+	inf := core.Objects(env.DataStore, core.NewS3Key("s3.flip.io", id))
+
+	if err := c.JSON(http.StatusOK, inf); err != nil {
+		return err, http.StatusInternalServerError
+	}
 
 	return nil, 0
 }

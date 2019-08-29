@@ -23,9 +23,11 @@ const zoneActive = {
 function Upload({ uploadInput }) {
   const [ key, setKey ] = useState('');
   const [ uploaded, setUploaded ] = useState('select/drag files');
+  const [ files, setFiles ] = useState([]);
   const [ hover, setHover ] = useState(false);
   const onDrop = useCallback(acceptedFiles => {
     setUploaded(acceptedFiles.map(f => f.name).join(', '))
+    setFiles(acceptedFiles)
   }, []);
   const { getRootProps, isDragActive } = useDropzone({ onDrop });
   const style = useMemo(() => ({
@@ -37,9 +39,10 @@ function Upload({ uploadInput }) {
     e.preventDefault();
 
     const data = new FormData();
-    data.append('file', uploadInput.files[ 0 ]);
+    data.append('file', files[ 0 ]);
+    console.log(uploadInput.files)
 
-    fetch('http://localhost:80/buffer', {
+    fetch('http://35.171.21.255:80/data', {
       method: 'POST',
       body: data,
     }).then((response) => {
