@@ -45,7 +45,9 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 // TODO: Bufferless proxy?
 func getFile(env *config.Env, c echo.Context) (error, int) {
 	key := c.Param("key")                                                // TODO: Check input
-	buf := core.GetData(env.DataStore, core.NewS3Key("s3.flip.io", key)) // TODO: Some way to fetch key struct (S3 tags/Dynamo?)
+	tempKey := core.NewS3Key("s3.flip.io", key)
+	obj := core.Objects(env.DataStore, tempKey)
+	buf := core.GetData(env.DataStore, tempKey.Extend(obj[0])) // TODO: Some way to fetch key struct (S3 tags/Dynamo?)
 
 	// TODO: Fetch first file if this param doesn't exist
 	//_, err := strconv.ParseInt(c.Param("part"), 10, 32)
