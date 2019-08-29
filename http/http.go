@@ -13,7 +13,7 @@ import (
 )
 
 type response struct {
-	key string
+	Key string
 }
 
 type handler func(env *config.Env, c echo.Context) (error, int)
@@ -44,7 +44,7 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 
 func getFile(env *config.Env, c echo.Context) (error, int) {
 	key := c.Param("key")                                                // TODO: Check input
-	buf := core.GetData(env.DataStore, core.NewS3Key("s3.flip.io", key)) // TODO: Some way to fetch key struct (Dynamo?)
+	buf := core.GetData(env.DataStore, core.NewS3Key("s3.flip.io", key)) // TODO: Some way to fetch key struct (S3 tags/Dynamo?)
 
 	// TODO: Fetch first file if this param doesn't exist
 	//_, err := strconv.ParseInt(c.Param("part"), 10, 32)

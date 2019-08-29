@@ -14,8 +14,7 @@ type KeyOptions struct {
 
 // TODO: Figure out empty name
 func PutData(store DataStore, data io.Reader, name string, dst Key) error {
-	dst.Extend(name)
-	store.putData(dst, data) // TODO: Impl./return error
+	store.putData(dst.Extend(name), data) // TODO: Impl./return error
 	return nil
 }
 
