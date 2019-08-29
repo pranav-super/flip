@@ -37,6 +37,7 @@ func S3Session() *S3 {
 // TODO: Improve memory efficiency; stream to given io (e.g. echo Body) instead of into memory
 func (s *S3) getData(key Key) ([]byte, bool) {
 	objects, err := s.client.ListObjects(&s3service.ListObjectsInput{
+		Bucket: aws.String(key.Metadata().(string)),
 		Prefix: aws.String(key.Token()),
 	})
 	if err != nil {
