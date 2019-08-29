@@ -51,8 +51,8 @@ func (s *S3) objects(key Key) []string {
 	}
 
 	names := make([]string, len(objects.Contents))
-	for _, obj := range objects.Contents {
-		names = append(names, keySuffix(*obj.Key))
+	for i, obj := range objects.Contents {
+		names[i] = keySuffix(*obj.Key)
 	}
 
 	return names
