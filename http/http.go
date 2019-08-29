@@ -2,8 +2,6 @@ package http
 
 import (
 	"net/http"
-	//"io/ioutil"
-	//"path"
 	"github.com/eric-lindau/flip/config"
 	"github.com/eric-lindau/flip/core"
 	"strconv"
@@ -12,10 +10,6 @@ import (
 	"github.com/labstack/echo/middleware"
 	"mime/multipart"
 	"mime"
-)
-
-const (
-	uuidLength = 36
 )
 
 type response struct {
@@ -28,7 +22,7 @@ func Init(env *config.Env) {
 	h := echo.New()
 	h.Use(middleware.BodyLimit(strconv.Itoa(env.MaxData) + "M"))
 	h.GET("/data/:key/:part", handle(env, getFile))
-	h.GET("/data/:key", handle(env, info))
+	h.GET("/data/:key/meta", handle(env, info))
 	h.POST("/data", handle(env, postFiles))
 
 	h.Logger.Fatal(h.Start(":80"))
@@ -49,14 +43,8 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 }
 
 func getFile(env *config.Env, c echo.Context) (error, int) {
-	key := c.Param("key") // TODO: Verify key
-    buf := core.GetData(&core.AWSKey{"s3.flip.io", key})
-
-	// TODO: Query S3
-	//reg, err := ioutil.ReadDir(path.Join(env.DataPath, i))
-	//if err != nil {
-	//	return err, http.StatusInternalServerError
-	//}
+	key := c.Param("key")                                                // TODO: Check input
+	buf := core.GetData(env.DataStore, core.NewS3Key("s3.flip.io", key)) // TODO: Some way to fetch key struct (Dynamo?)
 
 	// TODO: Fetch first file if this param doesn't exist
 	//_, err := strconv.ParseInt(c.Param("part"), 10, 32)
@@ -70,7 +58,7 @@ func getFile(env *config.Env, c echo.Context) (error, int) {
 	// TODO: Bufferless proxy?
 
 	c.Response().Header().Add("Content-Disposition", "attachment; filename=\""+key+"\"")
-    c.Response().Write(buf)
+	c.Response().Write(buf) // TODO: Error check
 	return nil, 0
 }
 
@@ -100,13 +88,14 @@ func info(env *config.Env, c echo.Context) (error, int) {
 }
 
 func postFiles(env *config.Env, c echo.Context) (error, int) {
-	key, err := core.GenerateKey(env)
+	// TODO: Parse Key Options
+	key, err := core.GenerateKey(env.KeyFunc, &core.KeyOptions{TTL: 5})
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
 
 	c.Response().Header().Add("Content-Type", "application/json")
-	if err := c.JSON(http.StatusOK, response{key.Id()}); err != nil {
+	if err := c.JSON(http.StatusOK, response{key.Token()}); err != nil {
 		return err, http.StatusInternalServerError
 	}
 
@@ -123,7 +112,7 @@ func postFiles(env *config.Env, c echo.Context) (error, int) {
 			return err, http.StatusInternalServerError
 		}
 
-		core.ProcessData(chk, chk.FileName(), key)
+		core.PutData(env.DataStore, chk, chk.FileName(), key)
 	}
 
 	return nil, 0
