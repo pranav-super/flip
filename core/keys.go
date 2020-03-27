@@ -22,7 +22,7 @@ func (a *AWSKey) Token() string {
 func (a *AWSKey) Extend(subKey string) Key {
 	return &AWSKey{
 		bucket: a.bucket,
-		key: a.key + "/" + subKey,
+		key:    a.key + "/" + subKey,
 	}
 }
 

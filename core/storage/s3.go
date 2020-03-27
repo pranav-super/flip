@@ -1,22 +1,20 @@
-package core
+package storage
 
 import (
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	session2 "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/aws"
-	s3service "github.com/aws/aws-sdk-go/service/s3"
 	"io"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 const (
-	region = "us-east-1" // TODO: Naming convention? / Add to Key metadata?
+	region = "us-east-1" // TODO: Decouple region
 )
 
-type DataStore interface {
-	objects(key Key) []string
-	getData(key Key) ([]byte, bool)
-	putData(key Key, r io.Reader) bool
+func keySuffix(s string) string {
+	subkeys := strings.Split(s, "/")
+	return subkeys[len(subkeys)-1]
 }
 
 type S3 struct {
@@ -34,11 +32,6 @@ func S3Session() *S3 {
 		uploader:   s3manager.NewUploader(sess),
 		downloader: s3manager.NewDownloader(sess),
 	}
-}
-
-func keySuffix(s string) string {
-	subkeys := strings.Split(s, "/")
-	return subkeys[len(subkeys)-1]
 }
 
 func (s *S3) objects(key Key) []string {

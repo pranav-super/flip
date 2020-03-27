@@ -1,15 +1,16 @@
 package http
 
 import (
+	"fmt"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"strconv"
+
 	"github.com/eric-lindau/flip/config"
 	"github.com/eric-lindau/flip/core"
-	"strconv"
-	"fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"mime/multipart"
-	"mime"
 )
 
 type response struct {
@@ -21,8 +22,11 @@ type handler func(env *config.Env, c echo.Context) (error, int)
 func Init(env *config.Env) {
 	h := echo.New()
 	h.Use(middleware.BodyLimit(strconv.Itoa(env.MaxData) + "M"))
+
+	h.GET("/data/:key", handle(env, getFile))
 	h.GET("/data/:key/:part", handle(env, getFile))
-	h.GET("/data/:key/meta", handle(env, info))
+	h.GET("/data/:key/meta", handle(env, metadata))
+
 	h.POST("/data", handle(env, postFiles))
 
 	h.Logger.Fatal(h.Start(":80"))
@@ -44,31 +48,38 @@ func handle(env *config.Env, h handler) echo.HandlerFunc {
 
 // TODO: Bufferless proxy?
 func getFile(env *config.Env, c echo.Context) (error, int) {
-	key := c.Param("key") // TODO: Check input
-	idx, err := strconv.ParseInt(c.Param("part"), 10, 32)
-	if err != nil {
-		return err, http.StatusBadRequest
+	key := c.Param("key")
+	idx := 0  // Default to first file in key
+
+    // Allow other index to be specified
+	part := c.Param("part")
+	if part != "" {
+		idx, err := strconv.ParseInt(part, 10, 32)
+		if err != nil {
+			return err, http.StatusBadRequest
+		}
 	}
 
-	tempKey := core.NewS3Key("s3.flip.io", key)
-	obj := core.Objects(env.DataStore, tempKey)
-	// TODO: Fetch first file if this param doesn't exist
-	if int(idx) >= len(obj) {
+	// tempKey := core.NewS3Key("s3.flip.io", key)
+	obj := core.Flip.Objects(key) // TODO: Cache
+	if idx >= len(obj) {
 		return nil, http.StatusNotFound
 	}
-	buf := core.GetData(env.DataStore, tempKey.Extend(obj[idx])) // TODO: Some way to fetch key struct (S3 tags/Dynamo?)
+	// buf := core.GetData(env.DataStore, tempKey.Extend(obj[idx]))
+	buf := core.Flip.Get(tempKey.Extend(obj[idx]))
 
 	c.Response().Header().Add("Content-Disposition", "attachment; filename=\""+key+"\"")
 	c.Response().Write(buf) // TODO: Error check
 	return nil, 0
 }
 
-// Respond to client with information about given key
-func info(env *config.Env, c echo.Context) (error, int) {
-	id := c.Param("key")
-	inf := core.Objects(env.DataStore, core.NewS3Key("s3.flip.io", id))
+// Hand client metadata corresp. to request's key.
+// Metadata consists of a list of named objects stored under the key.
+func metadata(env *config.Env, c echo.Context) (error, int) {
+	key := c.Param("key")
+	meta := core.Flip.Objects(key)
 
-	if err := c.JSON(http.StatusOK, inf); err != nil {
+	if err := c.JSON(http.StatusOK, meta); err != nil {
 		return err, http.StatusInternalServerError
 	}
 
@@ -76,8 +87,9 @@ func info(env *config.Env, c echo.Context) (error, int) {
 }
 
 func postFiles(env *config.Env, c echo.Context) (error, int) {
-	// TODO: Parse Key Options
-	key, err := core.GenerateKey(env.KeyFunc, &core.KeyOptions{TTL: 5})
+	// TODO: Take Key Options in request
+	// TODO: Delegate key generation
+	key, err := core.Flip.GenerateKey(env.KeyFunc, &core.KeyOptions{TTL: 5})
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
@@ -99,8 +111,9 @@ func postFiles(env *config.Env, c echo.Context) (error, int) {
 		if err != nil {
 			return err, http.StatusInternalServerError
 		}
-
-		core.PutData(env.DataStore, chk, chk.FileName(), key)
+        
+        core.Flip.Put(key.Extend(chk.FileName()), chk)
+		// core.PutData(env.DataStore, chk, chk.FileName(), key)
 	}
 
 	return nil, 0
